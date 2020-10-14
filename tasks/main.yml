@@ -1,0 +1,28 @@
+---
+# tasks file for mysql_db
+     - name: Install MySQL server
+       yum:  
+         name:
+           - mysql-server 
+         state: installed
+     - name: Start MySQL Service
+       systemd:
+         state: started
+         name: mysqld
+     - name: Create My SQL DB
+       mysql_db: name={{db_name}} state=present
+     - name: Create DB User
+       mysql_user: 
+        name: db_user
+        password: '{{db_password}}'
+        priv: '".":ALL' 
+        state: present 
+     - name: Delete Old Employee Table
+       command: mysql -u {{db_user}} {{db_name}}  --skip-column-names --execute  "DROP TABLE employees"
+       ignore_errors: yes
+     - name: Create Employee Table
+       command: mysql -u {{db_user}} {{db_name}}  --skip-column-names --execute  "CREATE TABLE employees (name VARCHAR(20))"
+       ignore_errors: yes
+     - name: Insert an employee
+       command: mysql -u {{db_user}} {{db_name}}  --skip-column-names --execute  "INSERT INTO employees VALUES ('JOHN')"
+
